@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { logger } from '@azure/event-hubs';
+// import { logger } from '@azure/event-hubs';
 import { BOAmbassador } from '../ambassadors/bo.ambassador';
 
 class ChargerStatusService {
@@ -13,14 +13,14 @@ class ChargerStatusService {
         const status = data
 
         if (!status) {
-          logger.info(`Status charger not found`);
+          // logger.info(`Status charger not found`);
           return
         }
 
         try {
           await this.boAmbassador.updateChargerState(chargerId, status)
         } catch (error) {
-          logger.error(`Update charger status error: ${status}`);
+          // logger.error(`Update charger status error: ${status}`);
         }
     }
 }

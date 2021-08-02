@@ -9,8 +9,11 @@ import StopTransactionService from "./services/stopTransaction.service";
 import StatusNotificationService from "./services/statusNotification.service";
 import ChargerStatusService from "./services/chargerStatus.service";
 import ValidateCard from "./services/validateCard.service";
-import { generateToken, httpClient } from "./utils/httpClient";
+import { httpClient } from "./utils/httpClient";
+import { EventData, OnReceivedError, OnReceivedMessage, PartitionContext } from "@azure/event-processor-host";
 import { memoryUsage } from 'process';
+
+
 
 var xl = require("excel4node");
 var wb = new xl.Workbook();
@@ -18,40 +21,6 @@ var ws = wb.addWorksheet("Sheet 1");
 
 let i = 0;
 
-const processError: ProcessErrorHandler = async (err: any): Promise<void> => {
-  console.log("ProcessError: ", err.message);
-  logger.error(err.message);
-};
-const processEvent: ProcessEventsHandler = async (
-  messages: any,
-  context: any
-): Promise<void> => {
-  if (messages.length === 0) {
-    return;
-  }
-  for (const message of messages) {
-    logger.info(`Telemetry received: ${JSON.stringify(message.body)}`);
-    console.log("========");
-    console.log("On Message =>", Math.round(memoryUsage().heapUsed / 1024 / 1024 * 100) / 100 ,"MB" );
-    saveMessage(message);
-  }
-  // try {
-    // await context.updateCheckpoint(messages[messages.length-1]);
-  // } catch (err) {
-  //   console.log(`Error when checkpointing on partition ${context.partitionId}: `, err);
-  //   throw err;
-  // }
-
-  // console.log(
-  //   `Successfully checkpointed event with sequence number: ${
-  //     messages[messages.length-1].sequenceNumber
-  //   } from partition: 'partitionContext.partitionId'`
-  // );
-  
-
-  
-  
-};
 const processMessage = async  (
   method,
   payload,
@@ -75,24 +44,13 @@ const processMessage = async  (
       ValidateCard.init(payload, chargerId, systemProperties);
     case MessageTypes.Heartbeat:
       let url: string = `${env.AAD_EVC_BO_API_ENDPOINT}/iot/charger/transaction`;
-      // const headers = {
-      //   'Authorization': await generateToken()
-      // }
-    //  axios.post(url, <IEventMessage>{
-    //     chargerId: chargerId,
-    //     method: method,
-    //     payload: payload,
-    //     additional_payload: additional_payload,
-    //   }, {
-        // headers: headers
-      // })
-       await httpClient.post(url, <IEventMessage>{
+      await httpClient.post(url, <IEventMessage>{
         chargerId: chargerId,
         method: method,
         payload: payload,
         additional_payload: additional_payload,
-      })
-      
+      });
+      console.log("On Heatbeat =>", Math.round(memoryUsage().heapUsed / 1024 / 1024 * 100) / 100 ,"MB" );
     default:
       break;
   }
@@ -118,5 +76,20 @@ const saveMessage = (message: any) => {
   }
 };
 
+let count = 0;
+const onMessage: OnReceivedMessage = async (context: PartitionContext, event: EventData) => {
+    // console.log(">>>>> Rx message from '%s': '%s'", context.partitionId, event.body);
+    console.log("On Message =>", Math.round(memoryUsage().heapUsed / 1024 / 1024 * 100) / 100 ,"MB" );
+    saveMessage(event)
 
-export { processEvent, processError };
+    count++;
+    // let us checkpoint every 100th message that is received across all the partitions.
+    if (count % 100 === 0) {
+      return await context.checkpoint();
+    }
+  };
+  // Error handler
+  const onError: OnReceivedError = (error: any) => {
+    console.log("Received Error: %O", error);
+  };
+export { onMessage, onError };

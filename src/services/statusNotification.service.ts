@@ -2,7 +2,7 @@ import { CmmAmbassador } from '../ambassadors/cmm.ambassador';
 import { NotificationStatus, NotificationInfo } from "../utils/MessageType";
 import _ from 'lodash';
 import { BOAmbassador } from '../ambassadors/bo.ambassador';
-import { logger } from '@azure/event-hubs';
+// import { logger } from '@azure/event-hubs';
 
 class MeterValueService {
     private cmmAmbassador: CmmAmbassador;
@@ -42,7 +42,7 @@ class MeterValueService {
                 await this.processEmergency(chargerId);
                 break;
             default:
-                logger.info(`Info notification message not match: ${context}`);
+                // logger.info(`Info notification message not match: ${context}`);
                 break;
         }
     }
@@ -59,7 +59,7 @@ class MeterValueService {
                 await this.handleFaulted(chargerId, data);
                 break;
             default:
-                logger.info(`Status notification message not match: ${context}`);
+                // logger.info(`Status notification message not match: ${context}`);
                 break;
         }
     }

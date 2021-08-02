@@ -1,7 +1,7 @@
 import { BOAmbassador } from '../ambassadors/bo.ambassador';
 import { MeterValuesContextType } from "../utils/MessageType";
 import _ from 'lodash';
-import { logger } from '@azure/event-hubs';
+// import { logger } from '@azure/event-hubs';
 
 class MeterValueService {
     private boAmbassador: BOAmbassador;
@@ -17,7 +17,7 @@ class MeterValueService {
             await this.boAmbassador.updateEnergyByOrderId(payload.orderId, sampledValue.value, sampledValue.unit)
                 .catch(ex => {
                     console.log(ex);
-                    logger.error(`Update energy order: ${payload.orderId} failure: `, `${ex}`);
+                    // logger.error(`Update energy order: ${payload.orderId} failure: `, `${ex}`);
                 })
         }
     }
@@ -29,7 +29,7 @@ class MeterValueService {
                 await this.processTransactionEnd(payload);
                 break;
             default:
-                logger.info(`Meter value message not match: ${context}`);
+                // logger.info(`Meter value message not match: ${context}`);
                 break;
         }
     }

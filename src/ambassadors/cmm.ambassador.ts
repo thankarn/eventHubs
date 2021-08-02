@@ -15,7 +15,7 @@ export class CmmAmbassador {
         //     subject: 'Transaction End',
         //     html: `<div>Transaction Id: ${orderId}<br/>Card NO: ${idTag}<br/>Energy: ${energy} ${unit}</div>`
         // };
-        const result = await httpClient.post(url, data);
+        const result = "PPP"
         return result;
     }
 }

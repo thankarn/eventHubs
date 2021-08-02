@@ -38,6 +38,8 @@ axios.interceptors.request.use(async (config) => {
     return config;
 });
 
+
+
 const httpClient = axios;
 
-export { httpClient }
+export { httpClient , generateToken }
